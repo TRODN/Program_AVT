@@ -1,6 +1,6 @@
 # Program_AVT
 ## Assignment 3
-source directory:
+#### source directory:
 
 ast2json_convert.py
   - input : python file
@@ -22,17 +22,17 @@ faint_variable_analysis.py
       - this function removes the dead code after getting 
         stable IN and OUT of basic block 
     
-testcases directory:
+#### testcases directory:
 
   - This directory consist the testcases and its corresponding expected output.
 
-run.sh:
+#### run.sh:
   - This script file take python file as input and generate 
     updated python file as output
   - This file first run ast2json_convert.py and then ast2cfg.py to 
     generate required output
      
-To run the code :
+#### To run the code :
 
 ./run.sh path_to_source_directory path_to_input_file
 
