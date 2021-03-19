@@ -1,0 +1,27 @@
+Assignment statements:
+
+dic = {'I' : 1, 'V' : 5, 'X' : 10, 'L' : 50, 'C' : 100, 'D' : 500, 'M' : 1000}
+value = 0
+i = 0
+c = s[i]
+c_n = s[(i + 1)]
+value += (dic[c_n] - dic[c])
+i += 1
+value += (dic[c_n] - dic[c])
+i += 1
+value += (dic[c_n] - dic[c])
+i += 1
+value += dic[c]
+value += dic[c]
+i += 1
+
+Branch Conditions:
+
+(i + 1) < len(s)
+(c == 'I' and (c_n == 'V' or c_n == 'X'))
+(c == 'X' and (c_n == 'L' or c_n == 'C'))
+(c == 'C' and (c_n == 'D' or c_n == 'M'))
+
+Loop Conditions:
+
+i < len(s)

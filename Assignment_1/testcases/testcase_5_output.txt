@@ -1,0 +1,113 @@
+Assignment statements:
+
+relational_operators = {'Eq' : '==', 'NotEq' : '!=', 'Lt' : '<', 'Gt' : '>', 'LtE' : '<=', 'GtE' : '>=', 'In' : 'in'}
+binary_operators = {'Add' : '+', 'Sub' : '-', 'Mult' : '*', 'Div' : '/', 'FloorDiv' : '//', 'Mod' : '%', 'Pow' : '**', 'BitAnd' : '&', 'BitOr' : '|', 'BitXor' : '^', 'LShift' : '<<', 'RShift' : '>>'}
+unary_operators = {'UAdd' : '+', 'USub' : '-', 'Invert' : '~', 'Not' : 'not '}
+logical_operators = {'Or' : 'or', 'And' : 'and'}
+assignment_stmts = []
+branch_conds = []
+loop_conds = []
+lst_elems = ''
+lst_elems += (get_value_expr(value) + ',')
+lst_name = get_value_expr(value['value'])
+lower = get_value_expr(value['slice']['lower'])
+upper = get_value_expr(value['slice']['upper'])
+step = get_value_expr(value['slice']['step'])
+lst_name += ((((('[' + lower) + ':') + upper) + ((':' + step) if step '')) + ']')
+lst_name = get_value_expr(value['value'])
+index_value = get_value_expr(value['slice']['value'])
+bool_expr = ''
+bool_expr += (((get_value_expr(value) + ' ') + operator) + ' ')
+dictionary = '{'
+dictionary += (((get_value_expr(k) + ' : ') + get_value_expr(v)) + ', ')
+keyword_args = ''
+keyword_args += (((keyword['arg'] + '=') + get_value_expr(keyword['value'])) + ',')
+ifs_str = ''
+if_cond = get_value_expr(each_if)
+ifs_str += (('if ' + if_cond) + ' ')
+ifs = get_ifs(generator['ifs'])
+iterator = get_value_expr(generator['iter'])
+fun_name = get_function_name(value['func'])
+fun_args = get_function_args(value['args'])
+key_words = get_keyword_args(value['keywords'])
+list_elems = get_elts_list(value['elts'])
+tuple_elems = get_elts_list(value['elts'])
+set_elems = get_elts_list(value['elts'])
+lst_slice = get_lst_slice(value)
+dictionary = get_dict(value)
+left = get_value_expr(value['left'])
+right = get_value_expr(value['right'])
+op = binary_operators[value['op']['_type']]
+op = unary_operators[value['op']['_type']]
+operand = get_value_expr(value['operand'])
+op = logical_operators[value['op']['_type']]
+right = get_value_expr(value['comparators'][0])
+left = get_value_expr(value['left'])
+expr = relational_operators[value['ops'][0]['_type']]
+test_cond = get_value_expr(value['test'])
+body = get_value_expr(value['body'])
+else_body = get_value_expr(value['orelse'])
+expression = get_value_expr(value['elt'])
+generator = get_generator(value['generators'][0],expression)
+args_str = ''
+args_str += (get_value_expr(arg) + ',')
+target = get_value_expr(stmt['targets'][0])
+value = get_value_expr(stmt['value'])
+target = get_value_expr(stmt['target'])
+value = get_value_expr(stmt['value'])
+op = binary_operators[stmt['op']['_type']]
+test_cond = get_value_expr(stmt['test'])
+target = get_value_expr(stmt['target'])
+iterator = get_value_expr(stmt['iter'])
+test_cond = get_value_expr(stmt['test'])
+data = json.load(f)
+
+Branch Conditions:
+
+len(elts) == 0
+value['slice']['_type'] == 'Slice'
+value['slice']['_type'] == 'Index'
+value['_type'] == 'Name'
+value['_type'] == 'Attribute'
+keyword['_type'] == 'keyword'
+generator['_type'] == 'comprehension'
+value == None
+value['_type'] == 'Constant'
+value['_type'] == 'Name'
+value['_type'] == 'Call'
+value['_type'] == 'List'
+value['_type'] == 'Tuple'
+value['_type'] == 'Set'
+value['_type'] == 'Subscript'
+value['_type'] == 'Dict'
+value['_type'] == 'BinOp'
+value['_type'] == 'UnaryOp'
+value['_type'] == 'BoolOp'
+value['_type'] == 'Compare'
+value['_type'] == 'IfExp'
+value['_type'] == 'Attribute'
+value['_type'] == 'ListComp'
+stmt['_type'] == 'Assign'
+(target and value)
+stmt['_type'] == 'AugAssign'
+(target and value and op)
+stmt['_type'] == 'If'
+stmt['_type'] == 'For'
+stmt['_type'] == 'While'
+stmt['_type'] == 'FunctionDef'
+stmt['_type'] == 'With'
+'body' in stmt
+
+Loop Conditions:
+
+value in elts
+value in values[:-1]
+(k,v) in zip(value['keys'],value['values'])
+keyword in keywords
+each_if in ifs
+arg in args
+stmt in body
+stmt in assignment_stmts
+cond in branch_conds
+cond in loop_conds
+

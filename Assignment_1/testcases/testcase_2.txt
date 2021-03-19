@@ -1,0 +1,35 @@
+def romanToInt(self, s: str) -> int:
+        
+        dic = {
+                'I' : 1,
+                'V' : 5,
+                'X' : 10,
+                'L' : 50,
+                'C' : 100,
+                'D' : 500,
+                'M' : 1000
+              }
+        
+        value = 0
+        i = 0
+        while i < len(s):
+            c = s[i]
+            if i+1 < len(s):
+                c_n = s[i+1]
+                if c == 'I' and (c_n == 'V' or c_n == 'X'):
+                    value += dic[c_n] - dic[c]
+                    i += 1
+                elif c == 'X' and (c_n == 'L' or c_n == 'C'):
+                    value += dic[c_n] - dic[c]
+                    i += 1
+                elif c == 'C' and (c_n == 'D' or c_n == 'M'):
+                    value += dic[c_n] - dic[c]
+                    i += 1
+                else:
+                    value += dic[c]
+            else:
+                value += dic[c]
+            
+            i += 1
+        
+        return value

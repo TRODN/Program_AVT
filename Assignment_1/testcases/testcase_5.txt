@@ -1,0 +1,266 @@
+relational_operators = {
+             'Eq' : '==',
+             'NotEq' : '!=',
+             'Lt' : '<',
+             'Gt' : '>',
+             'LtE' : '<=',
+             'GtE' : '>=',
+             'In' : 'in'
+            }
+
+binary_operators = {
+             'Add' : '+',
+             'Sub' : '-',
+             'Mult' : '*',
+             'Div' : '/',
+             'FloorDiv' : '//',
+             'Mod' : '%',
+             'Pow' : '**',
+             'BitAnd' : '&',
+             'BitOr' : '|',
+             'BitXor' : '^',
+             'LShift' : '<<',
+             'RShift' : '>>'                  
+}
+
+unary_operators = {
+             'UAdd' : '+',
+             'USub' : '-',
+             'Invert' : '~',
+             'Not' : 'not '
+}
+
+logical_operators = {
+             'Or' : 'or',
+             'And' : 'and'
+}
+
+assignment_stmts = []
+branch_conds = []
+loop_conds = []
+
+def get_elts_list(elts):
+  
+  if len(elts) == 0:
+    return ''
+  lst_elems = ''
+  for value in elts:
+    lst_elems += get_value_expr(value) + ','
+  return lst_elems[:-1]
+
+def get_lst_slice(value):
+  if value['slice']['_type'] == "Slice":
+    lst_name = get_value_expr(value['value'])
+    lower = get_value_expr(value['slice']['lower'])
+    upper = get_value_expr(value['slice']['upper'])
+    step = get_value_expr(value['slice']['step'])
+    lst_name += '[' + lower + ':' + upper + (':' + step if step else '') + ']'
+    return lst_name
+  
+  elif value['slice']['_type'] == "Index":
+    lst_name = get_value_expr(value['value'])
+    index_value = get_value_expr(value['slice']['value'])
+    return lst_name + '[' + index_value + ']'
+  
+  else:
+    pass
+
+def get_function_name(value):
+  
+  if value['_type'] == "Name":
+    return str(value['id'])
+  
+  elif value['_type'] == "Attribute":
+    return str(get_value_expr(value['value'])) + '.' + value['attr'] 
+
+def get_bool_expr(values, operator):
+  
+  bool_expr = ''
+  for value in values[:-1]:
+    bool_expr += get_value_expr(value) + ' ' + operator + ' '
+  
+  return '(' + bool_expr + get_value_expr(values[-1]) + ')'
+
+def get_dict(value):
+  
+  dictionary = '{'
+  for k, v in zip(value['keys'], value['values']):
+    dictionary += get_value_expr(k) + ' : ' + get_value_expr(v) + ', '
+  return dictionary[:-2] + '}'
+
+def get_keyword_args(keywords):
+  
+  keyword_args = ""
+  for keyword in keywords:
+    if keyword['_type'] == "keyword": 
+      keyword_args += keyword['arg'] + '=' + get_value_expr(keyword['value']) + ","
+    else:
+      pass
+  return keyword_args[:-1]
+
+def get_ifs(ifs):
+  
+  ifs_str = '' 
+  for each_if in ifs:
+    if_cond = get_value_expr(each_if)
+    ifs_str += 'if ' + if_cond + ' '
+  
+  return ifs_str 
+
+def get_generator(generator, expression):
+
+  if generator['_type'] == "comprehension":
+    ifs = get_ifs(generator['ifs'])
+    iterator = get_value_expr(generator['iter'])
+    return '[' + expression + ' for '+ expression + ' in ' + iterator + ' ' + ifs + ']'
+  else:
+    print('for now, can not handle this type: ', value['_type'])
+    return ''
+
+def get_value_expr(value):
+  
+  if value == None:
+    return ''
+   
+  if value['_type'] == "Constant":
+    return str(value['value'] if not isinstance(value['value'],str) else '\''+ value['value'] + '\'')
+  
+  elif value['_type'] == "Name":
+    return str(value['id'])
+  
+  elif value['_type'] == "Call":
+    fun_name = get_function_name(value['func'])
+    fun_args = get_function_args(value['args'])
+    key_words = get_keyword_args(value['keywords'])
+    return fun_name + '(' + fun_args + (',' + key_words if key_words else '') + ')'
+  
+  elif value['_type'] == "List":
+    list_elems = get_elts_list(value['elts'])
+    return '[' + list_elems + ']'
+  
+  elif value['_type'] == "Tuple":
+    tuple_elems = get_elts_list(value['elts'])
+    return '(' + tuple_elems + ')'
+    
+  elif value['_type'] == "Set":
+    set_elems = get_elts_list(value['elts'])
+    return '{' + set_elems + '}'
+  
+  elif value['_type'] == "Subscript":
+    lst_slice = get_lst_slice(value)
+    return lst_slice
+  
+  elif value['_type'] == "Dict":
+    dictionary = get_dict(value)
+    return dictionary
+  
+  elif value['_type'] == "BinOp":
+     left = get_value_expr(value['left'])
+     right = get_value_expr(value['right'])
+     op = binary_operators[value['op']['_type']]
+     return '(' + left + ' ' + op + ' ' + right + ')'
+     
+  elif value['_type'] == "UnaryOp":
+    op = unary_operators[value['op']['_type']]
+    operand = get_value_expr(value['operand'])
+    return op+operand
+  
+  elif value['_type'] == "BoolOp":
+    op = logical_operators[value['op']['_type']]
+    return get_bool_expr(value['values'], op)
+  
+  elif value['_type'] == "Compare":
+    right = get_value_expr(value['comparators'][0])
+    left = get_value_expr(value['left'])
+    expr = relational_operators[value['ops'][0]['_type']]
+    return left+ ' ' + expr + ' ' +right
+  
+  elif value['_type'] == "IfExp":
+    test_cond = get_value_expr(value['test'])
+    body = get_value_expr(value['body'])
+    else_body = get_value_expr(value['orelse'])
+    return '(' + body + ' if ' + test_cond + ' ' + else_body + ')'
+  
+  elif value['_type'] == "Attribute":
+    return str(get_value_expr(value['value'])) + '.' + value['attr']
+  
+  elif value['_type'] == "ListComp":
+    expression = get_value_expr(value['elt'])
+    generator = get_generator(value['generators'][0], expression)
+    return generator
+    
+  else:
+    print('for now, can not handle this type: ', value['_type'])
+    return ''
+
+def get_function_args(args):
+
+  args_str = ""
+  for arg in args:
+    args_str += get_value_expr(arg) + ','
+  return args_str[:-1]
+    
+def parse(body):
+  for stmt in body:
+    if stmt['_type'] == "Assign":
+      target = get_value_expr(stmt['targets'][0])
+      value = get_value_expr(stmt['value'])
+      if target and value:
+        assignment_stmts.append(target+" = "+value)
+      else:
+        pass
+    
+    if stmt['_type'] == "AugAssign":
+      target = get_value_expr(stmt['target'])
+      value = get_value_expr(stmt['value'])
+      op = binary_operators[stmt['op']['_type']]
+      if target and value and op:
+        assignment_stmts.append(target+' '+op+"= "+value)
+      else:
+        pass
+      
+    elif stmt['_type'] == "If":    
+      test_cond = get_value_expr(stmt['test'])
+      branch_conds.append(test_cond)
+      parse(stmt['body'])
+      parse(stmt['orelse'])
+    
+    elif stmt['_type'] == 'For':
+      target = get_value_expr(stmt['target'])
+      iterator = get_value_expr(stmt['iter'])
+      loop_conds.append(target + ' in ' + iterator)
+      parse(stmt['body'])
+       
+    elif stmt['_type'] == 'While':
+      test_cond = get_value_expr(stmt['test'])
+      loop_conds.append(test_cond)
+      parse(stmt['body'])
+   
+    elif stmt['_type'] == 'FunctionDef':
+      parse(stmt['body'])
+   
+    elif stmt['_type'] == "With":
+      parse(stmt['body'])
+   
+    else:
+      if 'body' in stmt:
+        parse(stmt['body'])
+      
+
+import json
+with open('temp_ast.json') as f:
+  data = json.load(f)
+  parse(data['body'])
+  
+print("\nAssignment statements:\n" if assignment_stmts else '\nNo assignment statements in python code\n')
+for stmt in assignment_stmts:
+  print(stmt)
+
+print("\nBranch Conditions:\n" if branch_conds else '\nNo branch conditions in python code\n')
+for cond in branch_conds:        
+  print(cond)
+
+print("\nLoop Conditions:\n" if loop_conds else '\nNo loop conditions in python code\n')
+for cond in loop_conds:
+  print(cond)  
+
